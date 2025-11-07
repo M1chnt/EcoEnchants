@@ -5,9 +5,9 @@ dependencies {
     compileOnly project(":eco-core:core-proxy")
     compileOnly 'org.spigotmc:spigot-api:1.17-R0.1-SNAPSHOT'
     compileOnly 'commons-io:commons-io:2.8.0'
-    compileOnly 'com.comphenix.protocol:ProtocolLib:5.2.0'
+    compileOnly 'com.comphenix.protocol:ProtocolLib:4.7.0'
     compileOnly 'net.essentialsx:EssentialsX:2.19.0'
     compileOnly 'io.papermc.paper:paper-api:1.17.1-R0.1-SNAPSHOT'
     compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.4-SNAPSHOT'
-    compileOnly 'io.lumine.mythic.bukkit:MythicBukkit:5.4.0'
+    compileOnly 'io.lumine:Mythic-Dist:5.0.3'
 }
