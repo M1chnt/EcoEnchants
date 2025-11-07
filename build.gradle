@@ -1,9 +1,18 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.10"
+    }
+}
+
 plugins {
     id 'java-library'
     id 'com.github.johnrengelman.shadow' version '7.0.0'
     id 'maven-publish'
     id 'java'
-    id 'checkstyle'
 }
 
 dependencies {
@@ -11,6 +20,7 @@ dependencies {
 }
 
 allprojects {
+    apply plugin: 'kotlin'
     apply plugin: 'java'
     apply plugin: 'maven-publish'
     apply plugin: 'com.github.johnrengelman.shadow'
@@ -20,30 +30,9 @@ allprojects {
         mavenLocal()
         maven { url 'https://jitpack.io' }
         maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
-        maven { url 'https://repo.codemc.org/repository/nms/' }
-        maven { url 'https://repo.codemc.org/repository/maven-public' }
-        maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
-        maven { url 'https://oss.sonatype.org/content/groups/public/' }
-        maven { url 'https://maven.enginehub.org/repo/' }
-        maven { url 'https://repo.essentialsx.net/releases/' }
-        maven { url 'https://ci.ender.zone/plugin/repository/project/' }
-        maven { url 'https://ci.ender.zone/plugin/repository/everything/' }
-        maven { url 'https://repo.md-5.net/content/repositories/snapshots/' }
-        maven { url 'https://repo.dmulloy2.net/repository/public/' }
         maven { url 'https://papermc.io/repo/repository/maven-public/' }
-        maven { url 'https://repo.maven.apache.org/maven2/' }
-        maven { url 'https://repo.dustplanet.de/artifactory/ext-release-local/' }
-        maven { url 'https://libraries.minecraft.net/' }
-        maven { url 'https://repo.spongepowered.org/maven/' }
-        maven { url 'https://repo.mikeprimm.com/' }
-        maven { url 'https://maven.sk89q.com/repo/' }
-        maven { url 'https://github.com/factions-site/repo/raw/public/' }
-        maven { url 'https://mvn.lumine.io/repository/maven-public/' }
-        maven { url 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
-        maven { url 'https://nexus.lumine.io/repository/maven-public/' } // Lumine
-        maven { 
-            url 'https://repo.dmulloy2.net/repository/releases/' 
-        }
+        maven { url 'https://repo.essentialsx.net/releases/' }
+        maven { url 'https://repo.codemc.io/repository/nms/' }
     }
 
     jar {
@@ -52,23 +41,18 @@ allprojects {
 
     shadowJar {
         relocate('com.willfp.libreforge', 'com.willfp.ecoenchants.libreforge')
-    }
-
-    compileJava {
-        onlyIf { !sourceSets.main.allSource.files.isEmpty() }
+        relocate('org.joml', 'com.willfp.ecoenchants.libreforge.joml')
     }
 
     dependencies {
-        compileOnly 'com.willfp:eco:6.17.1'
-        implementation 'com.willfp:libreforge:3.0.0'
+        compileOnly 'com.willfp:eco:6.44.0'
+        implementation 'com.willfp:libreforge:3.115.1'
+        implementation 'org.joml:joml:1.10.4'
 
-        compileOnly 'org.jetbrains:annotations:19.0.0'
+        compileOnly 'org.jetbrains:annotations:23.0.0'
+        compileOnly 'com.github.ben-manes.caffeine:caffeine:3.0.6'
 
-        compileOnly 'org.projectlombok:lombok:1.18.20'
-        annotationProcessor 'org.projectlombok:lombok:1.18.20'
-
-        testCompileOnly 'org.projectlombok:lombok:1.18.20'
-        testAnnotationProcessor 'org.projectlombok:lombok:1.18.20'
+        compileOnly 'org.jetbrains.kotlin:kotlin-stdlib:1.7.10'
     }
 
     tasks.withType(JavaCompile) {
@@ -77,8 +61,15 @@ allprojects {
     }
 
     processResources {
-        filesNotMatching(["**/*.png", "**/models/**", "**/textures/**"]) {
+        filesNotMatching(["**/*.png", "**/models/**", "**/textures/**", "**enchants.yml", "**lang.yml"]) {
             expand projectVersion: project.version
+        }
+    }
+
+    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
+        kotlinOptions {
+            jvmTarget = "17"
+            freeCompilerArgs += ["-Xjvm-default=all"]
         }
     }
 
@@ -89,7 +80,6 @@ allprojects {
     compileJava.dependsOn clean
 
     build.dependsOn shadowJar
-    build.dependsOn check
 }
 
 tasks.withType(Jar) {
@@ -112,12 +102,16 @@ group = 'com.willfp'
 archivesBaseName = project.name
 version = findProperty("version")
 
-compileJava.options.encoding = 'UTF-8'
+build.dependsOn shadowJar
 
-publishing {
-    publications {
-        maven(MavenPublication) {
-            from(components.java)
-        }
+task buyThePlugins {
+    dependsOn subprojects.build
+
+    doLast {
+        println 'If you like the plugin, please consider buying it on Spigot or Polymart!'
+        println 'Spigot: https://www.spigotmc.org/resources/authors/auxilor.507394/'
+        println 'Polymart: https://polymart.org/user/auxilor.1107/'
+        println 'Buying gives you access to support and the plugin auto-updater, and it allows me to keep developing plugins.'
     }
 }
+build.finalizedBy buyThePlugins
