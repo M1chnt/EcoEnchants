@@ -30,9 +30,7 @@ allprojects {
         mavenLocal()
         maven { url 'https://jitpack.io' }
         maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
-        repositories {
-            maven("https://repo.papermc.io/repository/maven-public/")
-        }
+        maven { url 'https://repo.papermc.io/repository/maven-public/' }
         maven { url 'https://repo.essentialsx.net/releases/' }
         maven { url 'https://repo.codemc.io/repository/nms/' }
     }
